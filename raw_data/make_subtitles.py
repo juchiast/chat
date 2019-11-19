@@ -1,8 +1,9 @@
 from os import listdir
 from os.path import isfile, join
+import os
+DIR = join(os.path.dirname(os.path.realpath(__file__)), "subtitles")
 
-paths = [join("subtitles", f) for f in listdir("subtitles") if isfile(join("subtitles", f)) and f.endswith(".srt")]
-
+paths = [join(DIR, f) for f in listdir(DIR) if isfile(join(DIR, f)) and f.endswith(".srt")]
 
 def process(path):
     f = open(path, "r")
@@ -16,8 +17,8 @@ def process(path):
         res += xx[2:]
     return res
 
-msgs = []
-for p in paths:
-    msgs += process(p)
-
-print(len(msgs))
+def get_all_texts():
+    msgs = []
+    for p in paths:
+        msgs += process(p)
+    return msgs

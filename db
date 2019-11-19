@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -Eeuxo pipefail
+stop() {
+    docker container stop ES || true
+    docker network rm chatnet || true
+}
+trap stop SIGINT SIGQUIT
+stop
+
+docker network create chatnet
+docker run --rm -d --name ES --net chatnet -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.4.2
+until curl -X GET "localhost:9200/_cluster/health?wait_for_status=green&timeout=50s&pretty";
+do
+    sleep 5;
+done
+echo elasticsearch is online
+sleep infinity
