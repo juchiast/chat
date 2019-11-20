@@ -22,3 +22,8 @@ for i, t in enumerate(texts):
 
 print(es.bulk(body=bulk))
 es.indices.refresh(index="test-index")
+
+query = {"query": {"match": { "message": "die" }}}
+res = es.search(index="test-index", body=query)
+for hit in res['hits']['hits']:
+    print(hit)
