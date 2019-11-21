@@ -1,17 +1,20 @@
 from functools import wraps
 import traceback
+import time
+import cassandra.cluster
 import flask
 from flask import Flask, request, jsonify
 from flask import Response
-import time
 
-import cassandra.cluster
 
 def get_worker_id():
     return 1
-worker_id = get_worker_id()
 
+
+worker_id = get_worker_id()
 msg_count = 0
+
+
 def new_message_id():
     global msg_count
     msg_count += 1
@@ -19,16 +22,21 @@ def new_message_id():
     # 63-bit id:
     # 32-bit timestamp, 8-bit worker's id, 23-bit local counter
     return (timestamp << 31) | (worker_id << 23) | (msg_count % (1 << 23))
+
+
 def get_timestamp_from_id(t):
     return t >> 31
 
+
 def error_response(msg):
     return jsonify({"error_code": 1, "error_message": msg}), 400
+
 
 def success_response(key=None, value=None):
     if key == None:
         return jsonify({"error_code": 0}), 200
     return jsonify({"error_code": 0, key: value}), 200
+
 
 def catch_panic():
     def _decorator(f):
@@ -42,13 +50,16 @@ def catch_panic():
         return __decorator
     return _decorator
 
+
 app = Flask(__name__)
 cluster = cassandra.cluster.Cluster()
+
 
 @app.route("/ping", methods=["GET"])
 @catch_panic()
 def ping():
     return "pong"
+
 
 @app.route("/<int:room_id>/", methods=["GET"])
 @catch_panic()
@@ -62,6 +73,7 @@ def load_messages(room_id):
         res.append({"id": str(row[1]), "user_name": row[0], "content": row[2], "timestamp": get_timestamp_from_id(row[1])})
     return success_response("messages", res)
 
+
 @app.route("/<int:room_id>/", methods=["POST"])
 @catch_panic()
 def send_message(room_id):
@@ -72,6 +84,7 @@ def send_message(room_id):
     msg_id = new_message_id()
     session.execute("insert into messages (id, content, user_name, room_id) values (%s, %s, %s, %s)", (msg_id, message, user_name, room_id))
     return success_response()
+
 
 if __name__ == '__main__':
     app.run(host = "127.0.0.1", port = 8080, debug = True)
