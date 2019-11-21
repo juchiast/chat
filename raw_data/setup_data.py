@@ -1,10 +1,9 @@
 # Insert to Cassandra and Elasticsearch
-from datetime import datetime
-from elasticsearch import Elasticsearch
-es = Elasticsearch()
 import json
-
+from elasticsearch import Elasticsearch
 import make_subtitles
+
+es = Elasticsearch()
 
 texts = make_subtitles.get_all_texts()
 bulk = ""
