@@ -1,5 +1,3 @@
-import setting
-
 
 def get_worker_id():
     # TODO:
