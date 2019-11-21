@@ -16,7 +16,7 @@ def error_response(msg):
 
 
 def success_response(key=None, value=None):
-    if key == None:
+    if not key:
         return jsonify({"error_code": 0}), 200
     return jsonify({"error_code": 0, key: value}), 200
 
