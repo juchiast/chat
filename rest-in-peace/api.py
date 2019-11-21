@@ -15,7 +15,7 @@ cluster = cassandra.cluster.Cluster()
 @app.route("/ping", methods=["GET"])
 @catch_panic()
 def ping():
-    return "pong"
+    return {"message": "pong"}
 
 
 @app.route("/<int:room_id>/", methods=["GET"])
