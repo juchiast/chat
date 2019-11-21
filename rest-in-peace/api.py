@@ -1,39 +1,13 @@
-import traceback
 import cassandra.cluster
-from flask import Flask, request, jsonify
-from functools import wraps
+from flask import Flask, request
 
+from exception import catch_panic, success_response
 from model import MessageIdFactory
 from routine import get_worker_id
 
 
 worker_id = get_worker_id()
 msg_factory = MessageIdFactory(worker_id)
-
-
-def error_response(msg):
-    return jsonify({"error_code": 1, "error_message": msg}), 400
-
-
-def success_response(key=None, value=None):
-    if key == None:
-        return jsonify({"error_code": 0}), 200
-    return jsonify({"error_code": 0, key: value}), 200
-
-
-def catch_panic():
-    def _decorator(f):
-        @wraps(f)
-        def __decorator(*args, **kwargs):
-            try:
-                return f(*args, **kwargs)
-            except Exception as e:
-                traceback.print_exc()
-                return error_response("%s: %s" % (type(e).__name__, str(e)))
-        return __decorator
-    return _decorator
-
-
 app = Flask(__name__)
 cluster = cassandra.cluster.Cluster()
 
