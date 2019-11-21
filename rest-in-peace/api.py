@@ -8,8 +8,9 @@ from routine import get_worker_id
 
 worker_id = get_worker_id()
 msg_factory = MessageIdFactory(worker_id)
-app = Flask(__name__)
 cluster = cassandra.cluster.Cluster()
+session = cluster.connect('chat')
+app = Flask(__name__)
 
 
 @app.route("/ping", methods=["GET"])
@@ -23,7 +24,6 @@ def ping():
 def load_messages(room_id):
     limit = int(request.args.get('limit'))
     before = request.args.get('before')
-    session = cluster.connect('chat')
     if not before:
         rows = session.execute("select user_name, id, content from messages where room_id=%s order by id desc limit %s" % (room_id, limit))
     else:
@@ -47,7 +47,6 @@ def send_message(room_id):
     body = request.json
     user_name = str(body["user_name"])
     message = str(body["message"])
-    session = cluster.connect('chat')
     msg_id = msg_factory.generate_message_id()
     session.execute("insert into messages (id, content, user_name, room_id) values (%s, %s, %s, %s)", (msg_id, message, user_name, room_id))
     return {}
