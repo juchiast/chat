@@ -1,7 +1,7 @@
 import cassandra.cluster
 from flask import Flask, request
 
-from exception import catch_panic, success_response
+from exception import catch_panic
 from model import MessageIdFactory
 from routine import get_worker_id
 
@@ -33,7 +33,7 @@ def load_messages(room_id):
             "content": row[2],
             "timestamp": msg_factory.get_timestamp_from_id(row[1])
         })
-    return success_response("messages", res)
+    return {"messages": res}
 
 
 @app.route("/<int:room_id>/", methods=["POST"])
@@ -45,7 +45,7 @@ def send_message(room_id):
     session = cluster.connect('chat')
     msg_id = msg_factory.generate_message_id()
     session.execute("insert into messages (id, content, user_name, room_id) values (%s, %s, %s, %s)", (msg_id, message, user_name, room_id))
-    return success_response()
+    return {}
 
 
 if __name__ == '__main__':
