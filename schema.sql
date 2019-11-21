@@ -1,6 +1,6 @@
-create keyspace chat with replication = {'class':'SimpleStrategy','replication_factor':1};
+create keyspace if not exists chat with replication = {'class':'SimpleStrategy','replication_factor':1};
 use chat;
-create table messages (
+create table if not exists messages (
     id bigint, 
     content varchar,
     room_id int,
