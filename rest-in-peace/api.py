@@ -24,19 +24,19 @@ def load_messages(room_id):
     limit = int(request.args.get('limit'))
     before = request.args.get('before')
     session = cluster.connect('chat')
-    rows = None
-    if before == None:
+    if not before:
         rows = session.execute("select user_name, id, content from messages where room_id=%s order by id desc limit %s" % (room_id, limit))
     else:
         before = int(before)
         rows = session.execute("select user_name, id, content from messages where room_id=%s and id<%s order by id desc limit %s" % (room_id, before, limit))
     res = []
     for row in rows:
+        row_id = str(row[1])
         res.append({
-            "id": str(row[1]),
+            "id": row_id,
             "user_name": row[0],
             "content": row[2],
-            "timestamp": msg_factory.get_timestamp_from_id(row[1])
+            "timestamp": msg_factory.get_timestamp_from_id(row_id)
         })
     return {"messages": res}
 
