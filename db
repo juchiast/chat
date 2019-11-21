@@ -2,16 +2,40 @@
 set -Eeuxo pipefail
 stop() {
     docker container stop ES || true
+    docker container stop CASSANDRA || true
     docker network rm chatnet || true
 }
 trap stop SIGINT SIGQUIT
 stop
 
+if [ "${1-}" = "--clear" ]; then
+    docker volume rm ES-VOLUME || true
+    docker volume rm CASSANDRA-VOLUME || true
+fi
+docker volume create ES-VOLUME || true
+docker volume create CASSANDRA-VOLUME || true
+
 docker network create chatnet
-docker run --rm -d --name ES --net chatnet -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.4.2
+
+docker run --rm -d --name ES --net chatnet \
+    -v ES-VOLUME:/usr/share/elasticsearch/data \
+    -p 9200:9200 -p 9300:9300 \
+    -e "discovery.type=single-node" \
+    docker.elastic.co/elasticsearch/elasticsearch:7.4.2
+docker run --rm -d --name CASSANDRA --net chatnet \
+    -v CASSANDRA-VOLUME:/var/lib/cassandra \
+    -p 9042:9042 \
+    cassandra:3.11.5
+
+until docker exec CASSANDRA cqlsh -e 'use system;'
+do
+    sleep 5;
+done
+docker run --rm --net chatnet -v ${PWD}/schema.sql:/schema.sql:ro cassandra:3.11.5 cqlsh -f /schema.sql CASSANDRA
+
 until curl -X GET "localhost:9200/_cluster/health?wait_for_status=green&timeout=50s&pretty";
 do
     sleep 5;
 done
-echo elasticsearch is online
+
 sleep infinity
