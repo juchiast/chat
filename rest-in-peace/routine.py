@@ -12,12 +12,12 @@ def get_worker_id():
 
 
 cluster = cassandra.cluster.Cluster()
+session = cluster.connect(setting.APP_NAME)
 worker_id = get_worker_id()
 msg_factory = MessageIdFactory(worker_id)
 
 
 def load_messages(room_id, limit, before=None):
-    session = cluster.connect(setting.APP_NAME)
     before_condition = 'and id<{} '.format(int(before)) if before else ''
     rows = session.execute(
         "select user_name, id, content "
@@ -42,7 +42,6 @@ def load_messages(room_id, limit, before=None):
 
 
 def send_message(room_id, user_name, message):
-    session = cluster.connect(setting.APP_NAME)
     msg_id = msg_factory.generate_message_id()
     session.execute(
         "insert into messages (id, content, user_name, room_id) "
