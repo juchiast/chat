@@ -21,6 +21,9 @@ def catch_panic():
                 return func(*args, **kwargs)
             except Exception as e:
                 traceback.print_exc()
-                return error_response("%s: %s" % (type(e).__name__, str(e)))
+                return error_response("{type}: {detail}".format(
+                    type=type(e).__name__,
+                    detail=str(e)
+                ))
         return __decorator
     return _decorator
