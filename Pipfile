@@ -7,6 +7,9 @@ verify_ssl = true
 
 [packages]
 elasticsearch = "*"
+flask = "*"
+cassandra = "*"
+cassandra-driver = "*"
 
 [requires]
 python_version = "3.6"
