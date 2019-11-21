@@ -50,7 +50,12 @@ def load_messages(room_id):
     limit = int(request.args.get('limit'))
     before = request.args.get('before')
     session = cluster.connect('chat')
-    rows = session.execute("select user_name, id, content from messages where room_id=%s order by id desc limit %s" % (room_id, limit))
+    rows = None
+    if before == None:
+        rows = session.execute("select user_name, id, content from messages where room_id=%s order by id desc limit %s" % (room_id, limit))
+    else:
+        before = int(before)
+        rows = session.execute("select user_name, id, content from messages where room_id=%s and id<%s order by id desc limit %s" % (room_id, before, limit))
     res = []
     for row in rows:
         res.append({
