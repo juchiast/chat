@@ -67,7 +67,7 @@ def send_message(room_id, user_name, message):
     assert(resp['result'] == 'created')
 
 
-def search_message(room_id, query):
+def search(room_id, query):
     q = {
         '_source': ['id'],
         'sort': [{'id': 'desc'}],
@@ -98,4 +98,4 @@ def search_message(room_id, query):
             'content': row[1],
             'timestamp': get_timestamp_from_id(msg_id),
         })
-    return {'messages': result}
+    return result
