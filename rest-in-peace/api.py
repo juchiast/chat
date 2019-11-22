@@ -1,7 +1,7 @@
 from flask import Flask, request
 
 from wrap_response import wrap_response
-from routine import load_messages, send_message
+from routine import load_messages, send_message, search_message
 
 app = Flask(__name__)
 
@@ -29,9 +29,12 @@ def send_message_api(room_id):
     send_message(room_id, user_name, message)
     return {}
 
+
 @app.route("/<int:room_id>/search/")
-def search_message(room_id):
-    return {}
+def search_message_api(room_id):
+    body = request.json
+    query = str(body['query'])
+    return search_message(room_id, query)
 
 
 if __name__ == '__main__':

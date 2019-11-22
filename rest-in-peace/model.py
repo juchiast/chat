@@ -1,6 +1,10 @@
 import time
 
 
+def get_timestamp_from_id(id):
+        return id >> 31
+
+
 class MessageIdFactory:
     def __init__(self, worker_id):
         self.worker_id = worker_id
@@ -12,6 +16,3 @@ class MessageIdFactory:
         # 63-bit id:
         # 32-bit timestamp, 8-bit worker's id, 23-bit local counter
         return (timestamp << 31) | (self.worker_id << 23) | (self.msg_count % (1 << 23))
-
-    def get_timestamp_from_id(self, id):
-        return id >> 31

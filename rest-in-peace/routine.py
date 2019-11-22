@@ -3,7 +3,7 @@ import elasticsearch
 import json
 
 import setting
-from model import MessageIdFactory
+from model import MessageIdFactory, get_timestamp_from_id
 
 
 def get_worker_id():
@@ -45,7 +45,7 @@ def load_messages(room_id, limit, before=None):
             "id": str(row_id),
             "user_name": row[0],
             "content": row[2],
-            "timestamp": msg_factory.get_timestamp_from_id(row_id)
+            "timestamp": get_timestamp_from_id(row_id)
         })
     return messages
 
@@ -65,3 +65,37 @@ def send_message(room_id, user_name, message):
     }
     resp = es.index(index=setting.INDEX_NAME, body=msg)
     assert(resp['result'] == 'created')
+
+
+def search_message(room_id, query):
+    q = {
+        '_source': ['id'],
+        'sort': [{'id': 'desc'}],
+        'query': {
+            'bool': {
+                'must': [
+                    {'match': {'content': query}},
+                ],
+                'filter': [
+                    {'term': {'room_id': room_id}},
+                ],
+            },
+        },
+    }
+    resp = es.search(index=setting.INDEX_NAME, body=q)
+    ids = (x['_source']['id'] for x in resp['hits']['hits'])
+    result = []
+    for msg_id in ids:
+        row = session.execute(
+            "select user_name, content "
+            "from messages "
+            "where room_id=%s and id=%s ",
+            (room_id, msg_id)
+        )[0]
+        result.append({
+            'id': str(msg_id),
+            'user_name': row[0],
+            'content': row[1],
+            'timestamp': get_timestamp_from_id(msg_id),
+        })
+    return {'messages': result}
