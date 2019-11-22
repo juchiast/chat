@@ -24,3 +24,8 @@ Insert messages:
 ```
 python3 raw_data/setup_data.py
 ```
+
+# Ref
+
+- https://blog.discordapp.com/how-discord-indexes-billions-of-messages-e3d5e9be866f
+- https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html
