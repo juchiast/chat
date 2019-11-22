@@ -1,4 +1,6 @@
 import cassandra.cluster
+import elasticsearch
+import json
 
 import setting
 from model import MessageIdFactory
@@ -15,6 +17,7 @@ cluster = cassandra.cluster.Cluster()
 session = cluster.connect(setting.KEYSPACE_NAME)
 worker_id = get_worker_id()
 msg_factory = MessageIdFactory(worker_id)
+es = elasticsearch.Elasticsearch()
 
 
 def load_messages(room_id, limit, before=None):
@@ -54,3 +57,11 @@ def send_message(room_id, user_name, message):
         "values (%s, %s, %s, %s)",
         (msg_id, message, user_name, room_id)
     )
+    msg = {
+        'id': msg_id,
+        'content': message,
+        'room_id': room_id,
+        'user_name': user_name,
+    }
+    resp = es.index(index=setting.INDEX_NAME, body=msg)
+    assert(resp['result'] == 'created')
