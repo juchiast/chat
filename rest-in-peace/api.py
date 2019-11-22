@@ -40,8 +40,7 @@ def search_api(room_id):
 
 @app.route("/")
 def example_client():
-    html = open('./example_client.html', 'r').read()
-    return html
+    return open('./example_client.html', 'r').read()
 
 
 if __name__ == '__main__':

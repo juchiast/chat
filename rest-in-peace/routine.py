@@ -1,9 +1,9 @@
 import cassandra.cluster
 import elasticsearch
 import json
+import time
 
 import setting
-from model import MessageIdFactory, get_timestamp_from_id
 
 
 def get_worker_id():
@@ -13,14 +13,30 @@ def get_worker_id():
     return 1
 
 
+def get_timestamp_from_id(id):
+    return id >> 31
+
+
+class IdGenerator:
+    def __init__(self):
+        self.worker_id = get_worker_id()
+        self.count = 0
+
+    def next_id(self):
+        self.count += 1
+        timestamp = int(time.time())
+        # 63-bit id:
+        # 32-bit timestamp, 8-bit worker's id, 23-bit local counter
+        return (timestamp << 31) | (self.worker_id << 23) | (self.count % (1 << 23))
+
+
 cluster = cassandra.cluster.Cluster()
 session = cluster.connect(setting.KEYSPACE_NAME)
-worker_id = get_worker_id()
-msg_factory = MessageIdFactory(worker_id)
+id_generator = IdGenerator()
 es = elasticsearch.Elasticsearch()
 
 
-def load_messages(room_id, limit, before=None):
+def load_messages(room_id, limit, before):
     if before == None:
         rows = session.execute(
             "select user_name, id, content "
@@ -51,7 +67,7 @@ def load_messages(room_id, limit, before=None):
 
 
 def send_message(room_id, user_name, message):
-    msg_id = msg_factory.generate_message_id()
+    msg_id = id_generator.next_id()
     session.execute(
         "insert into messages (id, content, user_name, room_id) "
         "values (%s, %s, %s, %s) ",
