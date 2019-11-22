@@ -54,7 +54,7 @@ def send_message(room_id, user_name, message):
     msg_id = msg_factory.generate_message_id()
     session.execute(
         "insert into messages (id, content, user_name, room_id) "
-        "values (%s, %s, %s, %s)",
+        "values (%s, %s, %s, %s) ",
         (msg_id, message, user_name, room_id)
     )
     msg = {
