@@ -9,6 +9,7 @@ INDEX_TEMPLATE = {
             'includes': [
                 'id',
                 'room_id',
+                'content', # TODO remove this
             ]
         },
         'properties': {

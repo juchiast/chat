@@ -29,6 +29,10 @@ def send_message_api(room_id):
     send_message(room_id, user_name, message)
     return {}
 
+@app.route("/<int:room_id>/search/")
+def search_message(room_id):
+    return {}
+
 
 if __name__ == '__main__':
     app.run(host="127.0.0.1", port=8080, debug=True)

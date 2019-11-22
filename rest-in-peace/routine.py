@@ -23,19 +23,19 @@ es = elasticsearch.Elasticsearch()
 def load_messages(room_id, limit, before=None):
     if before == None:
         rows = session.execute(
-            "select user_name, id, content"
-            "from messages"
-            "where room_id=%s"
-            "order by id desc limit %s",
+            "select user_name, id, content "
+            "from messages "
+            "where room_id=%s "
+            "order by id desc limit %s ",
             (room_id, limit)
         )
     else:
         before = int(before)
         rows = session.execute(
-            "select user_name, id, content"
+            "select user_name, id, content "
             "from messages "
-            "where room_id=%s and id<%s"
-            "order by id desc limit %s",
+            "where room_id=%s and id<%s "
+            "order by id desc limit %s ",
             (room_id, before, limit)
         )
     messages = []
