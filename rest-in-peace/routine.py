@@ -12,7 +12,7 @@ def get_worker_id():
 
 
 cluster = cassandra.cluster.Cluster()
-session = cluster.connect(setting.APP_NAME)
+session = cluster.connect(setting.KEYSPACE_NAME)
 worker_id = get_worker_id()
 msg_factory = MessageIdFactory(worker_id)
 

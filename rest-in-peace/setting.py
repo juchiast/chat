@@ -1,1 +1,1 @@
-APP_NAME = 'chat'
+KEYSPACE_NAME = 'chat'
