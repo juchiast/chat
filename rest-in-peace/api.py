@@ -1,19 +1,19 @@
 from flask import Flask, request
 
-from exception import catch_panic
+from wrap_response import wrap_response
 from routine import load_messages, send_message
 
 app = Flask(__name__)
 
 
 @app.route("/ping", methods=["GET"])
-@catch_panic()
+@wrap_response()
 def ping_api():
     return {"message": "pong"}
 
 
 @app.route("/<int:room_id>/", methods=["GET"])
-@catch_panic()
+@wrap_response()
 def load_messages_api(room_id):
     limit = int(request.args.get('limit'))
     before = request.args.get('before')
@@ -21,7 +21,7 @@ def load_messages_api(room_id):
 
 
 @app.route("/<int:room_id>/", methods=["POST"])
-@catch_panic()
+@wrap_response()
 def send_message_api(room_id):
     body = request.json
     user_name = str(body["user_name"])
