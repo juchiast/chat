@@ -18,17 +18,23 @@ msg_factory = MessageIdFactory(worker_id)
 
 
 def load_messages(room_id, limit, before=None):
-    before_condition = 'and id<{} '.format(int(before)) if before else ''
-    rows = session.execute(
-        "select user_name, id, content "
-        "from messages "
-        "where room_id={room} {extend_condition}"
-        "order by id desc limit {limit}".format(
-            room=room_id,
-            limit=limit,
-            extend_condition=before_condition
+    if before == None:
+        rows = session.execute(
+            "select user_name, id, content"
+            "from messages"
+            "where room_id=%s"
+            "order by id desc limit %s",
+            (room_id, limit)
         )
-    )
+    else:
+        before = int(before)
+        rows = session.execute(
+            "select user_name, id, content"
+            "from messages "
+            "where room_id=%s and id<%s"
+            "order by id desc limit %s",
+            (room_id, before, limit)
+        )
     messages = []
     for row in rows:
         row_id = row[1]
@@ -45,10 +51,6 @@ def send_message(room_id, user_name, message):
     msg_id = msg_factory.generate_message_id()
     session.execute(
         "insert into messages (id, content, user_name, room_id) "
-        "values ({id}, {message}, {user}, {room})".format(
-            id=msg_id,
-            message=message,
-            user=user_name,
-            room=room_id,
-        )
+        "values (%s, %s, %s, %s)",
+        (msg_id, message, user_name, room_id)
     )
