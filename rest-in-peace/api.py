@@ -41,7 +41,3 @@ def search_api(room_id):
 @app.route("/")
 def example_client():
     return open('./example_client.html', 'r').read()
-
-
-if __name__ == '__main__':
-    app.run(host="127.0.0.1", port=8080, debug=True)
