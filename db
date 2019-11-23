@@ -29,6 +29,7 @@ docker run --rm -d --name REDIS --net chatnet \
     -p 6379:6379 \
     redis:5
 
+sleep 20
 until docker exec CASSANDRA cqlsh -e 'use system;'
 do
     sleep 5;

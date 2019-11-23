@@ -33,6 +33,7 @@ cluster = cassandra.cluster.Cluster()
 session = cluster.connect(setting.KEYSPACE_NAME)
 id_generator = IdGenerator()
 es = elasticsearch.Elasticsearch()
+re = redis.Redis()
 
 
 def load_messages(room_id, limit, before):
@@ -66,20 +67,13 @@ def load_messages(room_id, limit, before):
 
 
 def send_message(room_id, user_name, message):
-    msg_id = id_generator.next_id()
-    session.execute(
-        "insert into messages (id, content, user_name, room_id) "
-        "values (%s, %s, %s, %s) ",
-        (msg_id, message, user_name, room_id)
-    )
     msg = {
-        'id': msg_id,
+        'id': id_generator.next_id(),
         'content': message,
         'room_id': room_id,
         'user_name': user_name,
     }
-    resp = es.index(index=setting.INDEX_NAME, body=msg)
-    assert(resp['result'] == 'created')
+    re.publish('new_messages', json.dumps(msg))
 
 
 def search(room_id, query):
