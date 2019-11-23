@@ -3,15 +3,17 @@ import Messages from './message-list';
 import Input from './input';
 
 import './App.css';
-import './room-selector.css'
 
 function RoomList(props) {
     const rooms = props.rooms;
-    const roomItems = rooms.map((room) =>
-        <li key={room.toString()}>{room}</li>
+    console.log(rooms);
+    const roomItems = rooms.map((room, idx) =>
+        <option value={idx}> {room} </option>
     );
     return (
-      <div>{roomItems}</div>
+        <select className="room_selection" onChange={(event) => props.onChange(event)}>
+            {roomItems}
+        </select>
     );
 }
 
@@ -21,14 +23,15 @@ export default class App extends React.Component {
         this.state = {
             messages: [
             ],
-            rooms: [1, 2, 3], // update from API
+            rooms: [10, 20, 30], // update from API
+            idxCurrentRoom: null,
             user: null,
         }
     }
 
-    //connect to server
-    componentWillMount() {
-    }
+    // // connect to server
+    // componentWillMount() {
+    // }
 
     // when has new messages, do sth
     newMessage(message) {
@@ -37,18 +40,23 @@ export default class App extends React.Component {
     sendnewMessage(message) {
     }
 
-    getRoom() {
-        console.log('Select room');
+    myChangeHandler(event) {
+        console.log('Change room to ' + event.target.value);
+        this.setState({idxCurrentRoom: event.target.value});
+        // get API message
     }
 
     render () {
         return (
            <div className="app__content">
                 <h1>Super App</h1>
-                <div className="room_form">
-                    <button className="dropbtn" onClick={() => this.getRoom()}>Dropdown</button>
-                    <RoomList className="dropdown-content" rooms={this.state.rooms}/>
-                </div>
+                <form>
+                    <label>
+                    Choose room:
+                    <RoomList className="room_window" 
+                        rooms={this.state.rooms} onChange={(event) => this.myChangeHandler(event)}/>
+                    </label>
+                </form>
                 <div className="chat_window">
                     <Messages user={this.state.user} messages={this.state.messages} typing={this.state.typing}/>
                     <Input sendMessage={this.sendnewMessage.bind(this)}/>
