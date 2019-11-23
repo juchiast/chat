@@ -2,15 +2,14 @@ import cassandra.cluster
 import elasticsearch
 import json
 import time
+import redis
 
 import setting
 
 
 def get_worker_id():
-    # TODO:
-    # Implement ID counter in Redis
-    # https://blog.twitter.com/engineering/en_us/a/2010/announcing-snowflake.html
-    return 1
+    r = redis.Redis()
+    return r.incr('worker_count') % (1 << 10)
 
 
 def get_timestamp_from_id(id):
@@ -26,8 +25,8 @@ class IdGenerator:
         self.count += 1
         timestamp = int(time.time())
         # 63-bit id:
-        # 32-bit timestamp, 8-bit worker's id, 23-bit local counter
-        return (timestamp << 31) | (self.worker_id << 23) | (self.count % (1 << 23))
+        # 32-bit timestamp, 10-bit worker's id, 21-bit local counter
+        return (timestamp << 31) | (self.worker_id << 21) | (self.count % (1 << 21))
 
 
 cluster = cassandra.cluster.Cluster()

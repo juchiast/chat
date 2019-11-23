@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuxo pipefail
 stop() {
-    docker container stop ES || true
-    docker container stop CASSANDRA || true
+    docker container stop ES CASSANDRA REDIS || true
     docker network rm chatnet || true
 }
 trap stop SIGINT SIGQUIT
@@ -26,6 +25,9 @@ docker run --rm -d --name CASSANDRA --net chatnet \
     -v CASSANDRA-VOLUME:/var/lib/cassandra \
     -p 9042:9042 \
     cassandra:3.11.5
+docker run --rm -d --name REDIS --net chatnet \
+    -p 6379:6379 \
+    redis:5
 
 until docker exec CASSANDRA cqlsh -e 'use system;'
 do
@@ -38,5 +40,10 @@ do
     sleep 5;
 done
 python3 ./setup_es_index.py
+
+until docker exec REDIS redis-cli ping;
+do
+    sleep 5;
+done
 
 sleep infinity
