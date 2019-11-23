@@ -1,7 +1,9 @@
 import cassandra.cluster
+import elasticsearch
+import json
+import time
 
 import setting
-from model import MessageIdFactory
 
 
 def get_worker_id():
@@ -11,13 +13,30 @@ def get_worker_id():
     return 1
 
 
+def get_timestamp_from_id(id):
+    return id >> 31
+
+
+class IdGenerator:
+    def __init__(self):
+        self.worker_id = get_worker_id()
+        self.count = 0
+
+    def next_id(self):
+        self.count += 1
+        timestamp = int(time.time())
+        # 63-bit id:
+        # 32-bit timestamp, 8-bit worker's id, 23-bit local counter
+        return (timestamp << 31) | (self.worker_id << 23) | (self.count % (1 << 23))
+
+
 cluster = cassandra.cluster.Cluster()
 session = cluster.connect(setting.KEYSPACE_NAME)
-worker_id = get_worker_id()
-msg_factory = MessageIdFactory(worker_id)
+id_generator = IdGenerator()
+es = elasticsearch.Elasticsearch()
 
 
-def load_messages(room_id, limit, before=None):
+def load_messages(room_id, limit, before):
     if before == None:
         rows = session.execute(
             "select user_name, id, content "
@@ -42,15 +61,57 @@ def load_messages(room_id, limit, before=None):
             "id": str(row_id),
             "user_name": row[0],
             "content": row[2],
-            "timestamp": msg_factory.get_timestamp_from_id(row_id)
+            "timestamp": get_timestamp_from_id(row_id)
         })
     return messages
 
 
 def send_message(room_id, user_name, message):
-    msg_id = msg_factory.generate_message_id()
+    msg_id = id_generator.next_id()
     session.execute(
         "insert into messages (id, content, user_name, room_id) "
         "values (%s, %s, %s, %s) ",
         (msg_id, message, user_name, room_id)
     )
+    msg = {
+        'id': msg_id,
+        'content': message,
+        'room_id': room_id,
+        'user_name': user_name,
+    }
+    resp = es.index(index=setting.INDEX_NAME, body=msg)
+    assert(resp['result'] == 'created')
+
+
+def search(room_id, query):
+    q = {
+        '_source': ['id'],
+        'sort': [{'id': 'desc'}],
+        'query': {
+            'bool': {
+                'must': [
+                    {'match': {'content': query}},
+                ],
+                'filter': [
+                    {'term': {'room_id': room_id}},
+                ],
+            },
+        },
+    }
+    resp = es.search(index=setting.INDEX_NAME, body=q)
+    ids = (x['_source']['id'] for x in resp['hits']['hits'])
+    result = []
+    for msg_id in ids:
+        row = session.execute(
+            "select user_name, content "
+            "from messages "
+            "where room_id=%s and id=%s ",
+            (room_id, msg_id)
+        )[0]
+        result.append({
+            'id': str(msg_id),
+            'user_name': row[0],
+            'content': row[1],
+            'timestamp': get_timestamp_from_id(msg_id),
+        })
+    return result

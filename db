@@ -33,9 +33,10 @@ do
 done
 docker run --rm --net chatnet -v ${PWD}/schema.sql:/schema.sql:ro cassandra:3.11.5 cqlsh -f /schema.sql CASSANDRA
 
-until curl -X GET "localhost:9200/_cluster/health?wait_for_status=green&timeout=50s&pretty";
+until curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&pretty";
 do
     sleep 5;
 done
+python3 ./setup_es_index.py
 
 sleep infinity
