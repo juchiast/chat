@@ -25,8 +25,7 @@ export default class SearchWindow extends React.Component {
 
     render() {
         let render_value = this.props.openSearchBox ? 
-                <div className="split search_box">
-                    <h1> Search box </h1>
+                <div className="search_box">
                     <form onSubmit={(event) => this.query(event)}>
                         <input type="text" name="search_content" 
                                 onChange={(event) => this.queryChangeHandler(event)}/>
