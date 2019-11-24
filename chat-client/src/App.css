@@ -15,6 +15,11 @@ body {
   overflow-x: hidden;
 }
 
+.app_content_0 {
+  width: 100%;
+  left: 0;
+}
+
 .app_content {
   width: 80%;
   left: 0;
@@ -25,18 +30,26 @@ body {
   right: 0;
 }
 
-.chat_window {
-  position: absolute;
+.room_form {
   width: calc(100% - 20px);
-  max-width: 800px;
-  height: 500px;
+  height: 15%;
+}
+
+.chat_window {
+  margin: auto;
+  width: calc(90% - 20px);
+  height: 85%;
   border-radius: 10px;
   background-color: #fff;
-  left: 15%;
-  top: 20%;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
   background-color: #f8f8f8;
   overflow: hidden;
+}
+
+.button_search {
+  position: absolute;
+  width: 10%;
+  right: 20px;
 }
 
 .top_menu {
@@ -159,7 +172,7 @@ body {
 
 .bottom_wrapper {
   position: relative;
-  width: 100%;
+  width: calc(90% - 20px);
   background-color: #fff;
   padding: 20px 20px;
   position: absolute;
