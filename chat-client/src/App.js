@@ -17,7 +17,7 @@ function RoomList(props) {
     );
 }
 
-export default class App extends React.Component {
+class ChatWindow extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -46,16 +46,14 @@ export default class App extends React.Component {
         // get API message
     }
 
-    render () {
+    render() {
         return (
-           <div className="app__content">
+            <div className="split app_content">
                 <h1>Super App</h1>
                 <form>
-                    <label>
-                    Choose room:
+                    <label> Choose room: </label>
                     <RoomList className="room_window" 
                         rooms={this.state.rooms} onChange={(event) => this.myChangeHandler(event)}/>
-                    </label>
                 </form>
                 <div className="chat_window">
                     <Messages user={this.state.user} messages={this.state.messages} typing={this.state.typing}/>
@@ -64,4 +62,29 @@ export default class App extends React.Component {
             </div>
         )
     }
+}
+
+
+class SearchWindow extends React.Component {
+    render() {
+        return (
+            <div className="split search_box">
+                <h1> Search box </h1>
+                <form>
+                    <label> Search </label>
+                    <input type="text" name="search_content" />
+                </form>
+                {/* <SearchResult/> */}
+            </div>
+        )
+    }
+}
+
+export default function App(props) {
+    return (
+        <div>
+            <ChatWindow />
+            <SearchWindow />
+        </div>
+    )
 }
