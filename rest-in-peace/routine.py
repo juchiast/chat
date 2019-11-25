@@ -8,7 +8,7 @@ import setting
 
 
 def get_worker_id():
-    r = redis.Redis()
+    r = redis.Redis(setting.REDIS_HOST)
     return r.incr('worker_count') % (1 << 10)
 
 
@@ -29,10 +29,10 @@ class IdGenerator:
         return (timestamp << 31) | (self.worker_id << 21) | (self.count % (1 << 21))
 
 
-cluster = cassandra.cluster.Cluster()
+cluster = cassandra.cluster.Cluster(setting.CASSANDRA_HOSTS)
 session = cluster.connect(setting.KEYSPACE_NAME)
 id_generator = IdGenerator()
-es = elasticsearch.Elasticsearch()
+es = elasticsearch.Elasticsearch(setting.ES_HOSTS)
 re = redis.Redis()
 
 
