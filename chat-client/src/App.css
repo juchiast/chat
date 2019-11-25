@@ -23,7 +23,6 @@ body {
 
 .search_button {
   position: absolute;
-  width: 10%;
   height: 50%;
   right: 20px;
   border-radius: 10px;
@@ -128,7 +127,8 @@ body {
   background-color: #ffe6cb;
   margin-left: 20px;
 }
-.messages .message.left .text_wrapper::after, .messages .message.left .text_wrapper::before {
+.messages .message.left .text_wrapper::after,
+.messages .message.left .text_wrapper::before {
   right: 100%;
   border-right-color: #ffe6cb;
 }
@@ -145,7 +145,8 @@ body {
   margin-right: 20px;
   float: right;
 }
-.messages .message.right .text_wrapper::after, .messages .message.right .text_wrapper::before {
+.messages .message.right .text_wrapper::after,
+.messages .message.right .text_wrapper::before {
   left: 100%;
   border-left-color: #c7eafc;
 }
@@ -162,11 +163,12 @@ body {
   display: inline-block;
   padding: 20px;
   border-radius: 6px;
-  width: calc(100% - 170px);
-  min-width: 100px;
+  max-width: calc(100% - 170px);
+  min-width: 5px;
   position: relative;
 }
-.messages .message .text_wrapper::after, .messages .message .text_wrapper:before {
+.messages .message .text_wrapper::after,
+.messages .message .text_wrapper:before {
   top: 18px;
   border: solid transparent;
   content: " ";
