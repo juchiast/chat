@@ -19,26 +19,58 @@ export default class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: "duy",
-            rooms: this.getRoom(),
+            user: "kenny",
+            rooms: this.getRooms(),
+            messages: [],
             idxCurrentRoom: 0,
             openSearchBox: false,
-        }
+        };
+        this.fetchMessages();
     }
 
-    getRoom() {
-        return [10, 20, 30]; // update from API]
+    async fetchMessages() {
+        let roomId = this.state.rooms[this.state.idxCurrentRoom];
+        let resp = await fetch(`http://localhost:8080/${roomId}/?limit=10`);
+        resp = await resp.json();
+        let messages = resp.messages;
+        this.setState({ messages });
+    }
+
+    getRooms() {
+        return [1, 2, 3, 4, 5, 6]; // update from API
     }
 
     myChangeHandler(event) {
-        console.log('Change room to ' + event.target.value);
-        this.setState({idxCurrentRoom: event.target.value});
-        // get API message
+        this.setState({ idxCurrentRoom: event.target.value }, () => {
+            this.fetchMessages();
+        });
     }
 
     toggleSearchBox() {
-        console.log('clicked');
-        this.setState({openSearchBox: !this.state.openSearchBox})
+        this.setState({ openSearchBox: !this.state.openSearchBox })
+    }
+
+    newMessage(message) {
+        let messages = this.state.messages;
+        messages.push(message);
+        this.state.setState({ messages });
+    }
+
+    sendMessage(inputElement) {
+        const msg = {
+            message: inputElement.value,
+            user_name: this.state.user,
+        };
+        inputElement.value = "";
+        const roomId = this.state.rooms[this.state.idxCurrentRoom];
+        const url = `http://localhost:8080/${roomId}/`;
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(msg),
+        });
     }
 
     render() {
@@ -47,15 +79,20 @@ export default class App extends React.Component {
                 <div className="room_window">
                     <form className="room_form">
                         <label> Choose room: </label>
-                        <RoomList rooms={this.state.rooms} onChange={(event) => this.myChangeHandler(event)}/>
+                        <RoomList rooms={this.state.rooms} onChange={(event) => this.myChangeHandler(event)} />
                     </form>
                     <button className="search_button" onClick={() => this.toggleSearchBox()}>
                         {this.state.openSearchBox ? 'Hide Search Box' : 'Show Search Box'}
                     </button>
                 </div>
                 <div className="split">
-                    <ChatWindow user={this.state.user} rooms={this.state.rooms} openSearchBox={this.state.openSearchBox}/>
-                    <SearchWindow user={this.state.user} rooms={this.state.rooms} openSearchBox={this.state.openSearchBox}/>
+                    <ChatWindow user={this.state.user}
+                        idxCurrentRoom={this.state.idxCurrentRoom}
+                        rooms={this.state.rooms}
+                        messages={this.state.messages}
+                        sendMessage={this.sendMessage.bind(this)}
+                        openSearchBox={this.state.openSearchBox} />
+                    <SearchWindow user={this.state.user} rooms={this.state.rooms} openSearchBox={this.state.openSearchBox} />
                 </div>
             </div>
         )
