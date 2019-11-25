@@ -6,12 +6,11 @@ from cassandra.query import BatchStatement
 import elasticsearch 
 import json
 
-KEYSPACE_NAME = 'chat'
-INDEX_NAME = 'chat'
+import setting
 
-cluster = Cluster()
-session = cluster.connect(KEYSPACE_NAME)
-es = elasticsearch.Elasticsearch()
+cluster = Cluster(setting.CASSANDRA_HOSTS)
+session = cluster.connect(setting.KEYSPACE_NAME)
+es = elasticsearch.Elasticsearch(setting.ES_HOSTS)
 
 insert_message = session.prepare("insert into messages (id, content, user_name, room_id) values (?,?,?,?)")
 
@@ -24,7 +23,7 @@ def insert_messages(messages):
     for m in messages:
         batch.add(insert_message.bind((m['id'], m['content'], m['user_name'], m['room_id'])))
 
-        doc = {"index": { "_index": INDEX_NAME }}
+        doc = {"index": { "_index": setting.INDEX_NAME }}
         bulk.append(json.dumps(doc))
         bulk.append(json.dumps(m))
     session.execute(batch)
@@ -33,7 +32,7 @@ def insert_messages(messages):
 
 
 async def main():
-    redis = await aioredis.create_redis_pool('redis://localhost')
+    redis = await aioredis.create_redis_pool(setting.REDIS_HOST)
     (channel, ) = await redis.subscribe('new_messages')
     
     while True:
