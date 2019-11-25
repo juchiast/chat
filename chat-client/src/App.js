@@ -8,7 +8,7 @@ function RoomList(props) {
     const roomItems = rooms.map((room, idx) =>
         <option key={idx} value={idx}> {room} </option>
     );
-    return (
+    return (    
         <select className="room_selection" onChange={(event) => props.onChange(event)}>
             {roomItems}
         </select>
@@ -73,14 +73,25 @@ export default class App extends React.Component {
         });
     }
 
+    userChangeHandler(event) {
+        this.setState({user: event.target.value});
+    }
+
     render() {
         return (
             <div>
                 <div className="room_window">
-                    <form className="room_form">
-                        <label> Choose room: </label>
-                        <RoomList rooms={this.state.rooms} onChange={(event) => this.myChangeHandler(event)} />
-                    </form>
+                    <div className="room_form">
+                        <form className="user_form">
+                            <label> Choose User: </label>
+                            <input type="text" name="user_content" defaultValue={this.state.user}
+                                        onChange={(event) => this.userChangeHandler(event)}/>
+                        </form>
+                        <form>
+                            <label> Choose Room: </label>
+                            <RoomList rooms={this.state.rooms} onChange={(event) => this.myChangeHandler(event)} />
+                        </form>
+                    </div>
                     <button className="search_button" onClick={() => this.toggleSearchBox()}>
                         {this.state.openSearchBox ? 'Hide Search Box' : 'Show Search Box'}
                     </button>

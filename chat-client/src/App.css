@@ -120,7 +120,8 @@ body {
   opacity: 0;
 }
 .messages .message.left .avatar {
-  background-color: #f5886e;
+  text-align: center;
+  color: #f5886e;
   float: left;
 }
 .messages .message.left .text_wrapper {
@@ -135,7 +136,8 @@ body {
   color: #c48843;
 }
 .messages .message.right .avatar {
-  background-color: #fdbf68;
+  text-align: center;
+  color: #fdbf68;
   float: right;
 }
 .messages .message.right .text_wrapper {
@@ -154,9 +156,6 @@ body {
   opacity: 1;
 }
 .messages .message .avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
   display: inline-block;
 }
 .messages .message .text_wrapper {
