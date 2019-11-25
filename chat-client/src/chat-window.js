@@ -20,8 +20,8 @@ export default class ChatWindow extends React.Component {
 
     getMessages() {
         let TEST_MESSAGES = [
-            { id: "1", timestamp: 0, user_name: "duy", content: "Hello" },
-            { id: "2", timestamp: 0, user_name: "duy", content: "Hello" }
+            { id: "1", timestamp: 0, user_name: "not duy", content: "Hello" },
+            { id: "2", timestamp: 0, user_name: "duy", content: "Not Hello" }
         ];
         return TEST_MESSAGES;
     }

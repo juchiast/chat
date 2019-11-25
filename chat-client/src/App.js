@@ -19,7 +19,7 @@ export default class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: null,
+            user: "duy",
             rooms: this.getRoom(),
             idxCurrentRoom: 0,
             openSearchBox: false,
