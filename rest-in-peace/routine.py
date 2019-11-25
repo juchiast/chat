@@ -63,6 +63,7 @@ def load_messages(room_id, limit, before):
             "content": row[2],
             "timestamp": get_timestamp_from_id(row_id)
         })
+    messages.reverse()
     return messages
 
 
