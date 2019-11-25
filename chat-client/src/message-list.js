@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom'
 import Message from './message-item';
 
 
@@ -12,5 +13,18 @@ export default class MessageItem extends React.Component {
                 )}
             </ul>
         )
+    }
+
+    componentDidMount() {
+        this.handleScroll();
+    }
+
+    componentDidUpdate() {
+        this.handleScroll();
+    }
+
+    handleScroll() { 
+        let obj = ReactDOM.findDOMNode(this);
+        obj.scrollTop = 1e8;
     }
 }

@@ -70,7 +70,7 @@ export default class App extends React.Component {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(msg),
-        });
+        }).then(() => this.fetchMessages());
     }
 
     userChangeHandler(event) {
@@ -103,7 +103,11 @@ export default class App extends React.Component {
                         messages={this.state.messages}
                         sendMessage={this.sendMessage.bind(this)}
                         openSearchBox={this.state.openSearchBox} />
-                    <SearchWindow user={this.state.user} rooms={this.state.rooms} openSearchBox={this.state.openSearchBox} />
+                    <SearchWindow 
+                        user={this.state.user} 
+                        room={this.state.rooms[this.state.idxCurrentRoom]} 
+                        openSearchBox={this.state.openSearchBox} 
+                    />
                 </div>
             </div>
         )

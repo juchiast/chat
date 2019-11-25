@@ -7,8 +7,6 @@ export default class SearchWindow extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: this.props.user,
-            room: this.props.room,
             messages: [],
             query_text: '',
         }
@@ -18,9 +16,22 @@ export default class SearchWindow extends React.Component {
         this.setState({query_text: event.target.value});
     }
 
-    query(event) {
+    async query(event) {
         event.preventDefault();
-        // call API -> update this.state.messages
+        const query = {
+            query: this.state.query_text,
+        }
+        const url = `http://localhost:8080/${this.props.room}/search/`;
+        let resp = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(query),
+        });
+        resp = await resp.json();
+        let messages = resp.messages;
+        this.setState({ messages });
     }
 
     render() {
@@ -31,7 +42,7 @@ export default class SearchWindow extends React.Component {
                                 onChange={(event) => this.queryChangeHandler(event)}/>
                         <input type="submit" value="Search" />
                     </form>
-                    <Messages user={this.state.user} messages={this.state.messages}/>
+                    <Messages user={this.props.user} messages={this.state.messages}/>
                 </div> 
             : null;
         return render_value;
