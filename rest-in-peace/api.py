@@ -1,9 +1,11 @@
 from flask import Flask, request
+from flask_cors import CORS
 
 from wrap_response import wrap_response
 from routine import load_messages, send_message, search
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/ping", methods=["GET"])
