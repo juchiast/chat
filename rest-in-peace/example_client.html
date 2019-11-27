@@ -45,7 +45,7 @@
         let room = get_input('room_id');
         let limit = get_input('load_limit');
         let before = get_input('load_before');
-        let url = `/${room}/?limit=${limit}${before === '' ? '' : `&before=${before}`}`;
+        let url = `/api/${room}/?limit=${limit}${before === '' ? '' : `&before=${before}`}`;
         let resp = await (await fetch(url)).json();
         if (resp.error_code === 1) {
             display_error(resp.error_message);
@@ -58,7 +58,7 @@
         clear_output();
         let room = get_input('room_id');
         let query = get_input('search_query');
-        let url = `/${room}/search/`;
+        let url = `/api/${room}/search/`;
         let resp = await (await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -76,7 +76,7 @@
         let room = get_input('room_id');
         let user_name = get_input('send_user_name');
         let message = get_input('send_content');
-        let url = `/${room}/`;
+        let url = `/api/${room}/`;
         let resp = await (await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

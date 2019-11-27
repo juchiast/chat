@@ -6,7 +6,6 @@ import redis
 
 import setting
 
-
 def get_worker_id():
     r = redis.Redis(setting.REDIS_HOST)
     return r.incr('worker_count') % (1 << 10)
@@ -33,7 +32,7 @@ cluster = cassandra.cluster.Cluster(setting.CASSANDRA_HOSTS)
 session = cluster.connect(setting.KEYSPACE_NAME)
 id_generator = IdGenerator()
 es = elasticsearch.Elasticsearch(setting.ES_HOSTS)
-re = redis.Redis()
+re = redis.Redis(setting.REDIS_HOST)
 
 
 def load_messages(room_id, limit, before):

@@ -7,14 +7,13 @@ from routine import load_messages, send_message, search
 app = Flask(__name__)
 CORS(app)
 
-
-@app.route("/ping", methods=["GET"])
+@app.route("/api/ping", methods=["GET"])
 @wrap_response()
 def ping_api():
     return {"message": "pong"}
 
 
-@app.route("/<int:room_id>/", methods=["GET"])
+@app.route("/api/<int:room_id>/", methods=["GET"])
 @wrap_response()
 def load_messages_api(room_id):
     limit = int(request.args.get('limit'))
@@ -22,7 +21,7 @@ def load_messages_api(room_id):
     return {"messages": load_messages(room_id, limit, before)}
 
 
-@app.route("/<int:room_id>/", methods=["POST"])
+@app.route("/api/<int:room_id>/", methods=["POST"])
 @wrap_response()
 def send_message_api(room_id):
     body = request.json
@@ -32,7 +31,7 @@ def send_message_api(room_id):
     return {}
 
 
-@app.route("/<int:room_id>/search/", methods=["POST"])
+@app.route("/api/<int:room_id>/search/", methods=["POST"])
 @wrap_response()
 def search_api(room_id):
     body = request.json
@@ -40,6 +39,6 @@ def search_api(room_id):
     return {'messages': search(room_id, query)}
 
 
-@app.route("/")
+@app.route("/api/")
 def example_client():
     return open('./example_client.html', 'r').read()

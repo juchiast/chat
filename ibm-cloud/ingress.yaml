@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1 
+kind: Ingress
+metadata:
+  name: chat
+spec:
+  rules:
+  - host: mycluster-353364-2b90928cf6e095360e48d2abd8dff92e-0001.us-south.containers.appdomain.cloud
+    http:
+      paths:
+      - path: /api/
+        backend:
+          serviceName: rest-in-peace
+          servicePort: 8080
+      - path: /api/*
+        backend:
+          serviceName: rest-in-peace
+          servicePort: 8080

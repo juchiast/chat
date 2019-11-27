@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: setup-db
+spec:
+  template:
+    spec:
+      containers:
+      - name: setup-db
+        image: juchiast/rest-in-peace:latest
+        imagePullPolicy: Always
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        command: ["python3",  "init_database.py"]
+      restartPolicy: Never
+  backoffLimit: 4

@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: dns-test
+  name: test
   namespace: default
 spec:
   containers:
-  - name: busybox
-    image: busybox:1.28
+  - name: ubuntu
+    image: ubuntu:latest
     command:
       - sleep
       - "3600"
