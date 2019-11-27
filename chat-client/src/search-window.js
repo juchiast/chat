@@ -23,7 +23,7 @@ export default class SearchWindow extends React.Component {
     const query = {
       query: this.state.query_text
     };
-    const url = `${getApiUrl()}${this.props.room}/search/`;
+    const url = `${getApiUrl()}/${this.props.room}/search/`;
     let resp = await fetch(url, {
       method: "POST",
       headers: {
