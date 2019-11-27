@@ -7,6 +7,14 @@ spec:
   - host: mycluster-353364-2b90928cf6e095360e48d2abd8dff92e-0001.us-south.containers.appdomain.cloud
     http:
       paths:
+      - path: /
+        backend:
+          serviceName: chat-client
+          servicePort: 80
+      - path: /*
+        backend:
+          serviceName: chat-client
+          servicePort: 80
       - path: /api/
         backend:
           serviceName: rest-in-peace

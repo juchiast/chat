@@ -1,6 +1,7 @@
 import React from "react";
 import ChatWindow from "./chat-window";
 import SearchWindow from "./search-window";
+import { getApiUrl } from "./util";
 
 function RoomList(props) {
   const rooms = props.rooms;
@@ -35,7 +36,7 @@ export default class App extends React.Component {
 
   async fetchMessages() {
     let roomId = this.state.rooms[this.state.idxCurrentRoom];
-    let resp = await fetch(`http://localhost:8080/${roomId}/?limit=10`);
+    let resp = await fetch(`${getApiUrl()}/${roomId}/?limit=10`);
     resp = await resp.json();
     let messages = resp.messages;
     this.setState({ messages });
@@ -68,7 +69,7 @@ export default class App extends React.Component {
     };
     inputElement.value = "";
     const roomId = this.state.rooms[this.state.idxCurrentRoom];
-    const url = `http://localhost:8080/${roomId}/`;
+    const url = `${getApiUrl()}/${roomId}/`;
     fetch(url, {
       method: "POST",
       headers: {
