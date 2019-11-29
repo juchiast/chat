@@ -13,6 +13,8 @@ spec:
       - name: delayed-inserter
         image: juchiast/delayed-inserter:latest
         imagePullPolicy: Always
+        ports:
+        - containerPort: 8081
         env:
         - name: ENVIRONMENT
           value: "production"

@@ -24,3 +24,7 @@ spec:
         backend:
           serviceName: rest-in-peace
           servicePort: 8080
+      - path: /ws/
+        backend:
+          serviceName: delayed-inserter
+          servicePort: 8081
