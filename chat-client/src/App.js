@@ -37,7 +37,6 @@ export default class App extends React.Component {
 
   setupWs() {
     if (this.ws !== undefined) {
-      console.log("Close old connection");
       this.ws.close();
     }
     const ws = new WebSocket(getWsUrl());
@@ -53,7 +52,6 @@ export default class App extends React.Component {
 
   async fetchMessages() {
     let roomId = this.state.rooms[this.state.idxCurrentRoom];
-    console.log('fetch', roomId);
     let resp = await fetch(`${getApiUrl()}/${roomId}/?limit=10`);
     resp = await resp.json();
     let messages = resp.messages;
