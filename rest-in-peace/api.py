@@ -1,14 +1,11 @@
 from flask import Flask, request
 from flask_cors import CORS
-from flask_socketio import SocketIO
 
 from wrap_response import wrap_response
 from routine import load_messages, send_message, search
 
 app = Flask(__name__)
 CORS(app)
-socket_io = SocketIO(app, cors_allowed_origins='*')
-clients = []
 
 
 @app.route("/ping", methods=["GET"])
@@ -32,8 +29,6 @@ def send_message_api(room_id):
     user_name = str(body["user_name"])
     message = str(body["message"])
     send_message(room_id, user_name, message)
-
-    socket_io.emit('fetch', {}, broadcast=True)
     return {}
 
 
