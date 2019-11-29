@@ -65,6 +65,7 @@ export default class App extends React.Component {
 
   onRoomChanged(event) {
     this.setState({ idxCurrentRoom: event.target.value }, () => {
+      this.fetchMessages();
       this.setupWs();
     });
   }
