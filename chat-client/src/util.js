@@ -10,7 +10,11 @@ function getWsUrl() {
   if (window.location.origin.includes("localhost")) {
     return "ws://localhost:8081/";
   } else {
-    return `${window.location.origin}/ws`;
+    if (window.location.protocol === "https:") {
+      return `wss://${window.location.host}/ws`;
+    } else {
+      return `ws://${window.location.host}/ws`;
+    }
   }
 }
 
