@@ -1,8 +1,7 @@
 import React from "react";
 import ChatWindow from "./chat-window";
 import SearchWindow from "./search-window";
-import { getApiUrl } from "./util";
-import { subscribeToMessage } from "./socket";
+import { getApiUrl, getWsUrl } from "./util";
 
 function RoomList(props) {
   const rooms = props.rooms;
@@ -32,8 +31,24 @@ export default class App extends React.Component {
       idxCurrentRoom: 0,
       openSearchBox: false
     };
-    subscribeToMessage(this.fetchMessages.bind(this));
+    this.setupWs();
     this.fetchMessages();
+  }
+
+  setupWs() {
+    if (this.ws !== undefined) {
+      console.log("Close old connection");
+      this.ws.close();
+    }
+    const ws = new WebSocket(getWsUrl());
+    ws.addEventListener('open', () => {
+      ws.send(JSON.stringify({ room_id: this.state.rooms[this.state.idxCurrentRoom] }));
+    });
+
+    ws.addEventListener('message', (event) =>{
+      this.fetchMessages();
+    });
+    this.ws = ws;
   }
 
   async fetchMessages() {
@@ -48,9 +63,9 @@ export default class App extends React.Component {
     return [1, 2, 3, 4, 5, 6]; // update from API
   }
 
-  myChangeHandler(event) {
+  onRoomChanged(event) {
     this.setState({ idxCurrentRoom: event.target.value }, () => {
-      this.fetchMessages();
+      this.setupWs();
     });
   }
 
@@ -78,7 +93,7 @@ export default class App extends React.Component {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(msg)
-    }).then(() => this.fetchMessages());
+    });
   }
 
   userChangeHandler(event) {
@@ -103,7 +118,7 @@ export default class App extends React.Component {
               <label> Choose Room: </label>
               <RoomList
                 rooms={this.state.rooms}
-                onChange={event => this.myChangeHandler(event)}
+                onChange={event => this.onRoomChanged(event)}
               />
             </form>
           </div>
