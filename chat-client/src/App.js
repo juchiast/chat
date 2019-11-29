@@ -1,6 +1,7 @@
 import React from "react";
 import ChatWindow from "./chat-window";
 import SearchWindow from "./search-window";
+import { subscribeToMessage } from "./socket";
 
 function RoomList(props) {
   const rooms = props.rooms;
@@ -30,6 +31,7 @@ export default class App extends React.Component {
       idxCurrentRoom: 0,
       openSearchBox: false
     };
+    subscribeToMessage(this.fetchMessages.bind(this));
     this.fetchMessages();
   }
 
