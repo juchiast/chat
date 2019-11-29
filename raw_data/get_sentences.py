@@ -13,10 +13,10 @@ def read_file(file_dir):
             links.append(item_link)
     return links
 
-def generate(links, n):
+def generate(links, n, file_dir):
     sentences = []
-
-    while len(sentences) < n:
+    count = 0
+    while count < n:
         link = links[random.randint(0, len(links) - 1)]
         try:
             fp = urlopen(link)
@@ -31,20 +31,18 @@ def generate(links, n):
                     for tmp in __sentence:
                         if len(tmp) > 10:
                             sentences.append(tmp)
+                            count += 1
         except:
             print("[ERROR] Link :%s" % link)
+        if len(sentences) > 100:
+            with open(file_dir, "a") as f:
+                for sentence in sentences:
+                    tmp = sentence.strip()
+                    f.write(tmp)
+                    f.write("\n")
+            print("Current:", count)
+            sentences = []
 
-    return sentences[:n]
-
-def export_file(sentences, file_dir):
-    with open(file_dir, "w") as f:
-        for sentence in sentences:
-            tmp = sentence
-            if tmp[0] == ' ':
-                tmp = tmp[1:]
-            if tmp[-1] == ' ':
-                tmp = tmp[:-1]
-            f.write(tmp + "\n")
 
 # python3 get_sentences.py vnexpress_article_links.txt sentences.txt 1000
 if __name__ == '__main__':
@@ -56,5 +54,4 @@ if __name__ == '__main__':
 
     links = read_file(args.input_dir)
 
-    sentences = generate(links, args.sentences)
-    export_file(sentences, args.output_dir)
+    sentences = generate(links, args.sentences, args.output_dir)
