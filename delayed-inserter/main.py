@@ -87,7 +87,7 @@ async def main():
     
     while True:
         max_delay = 1
-        max_count = 500
+        max_count = 50
         messages = []
         try:
             async with timeout(max_delay):
