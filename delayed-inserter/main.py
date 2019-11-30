@@ -36,6 +36,8 @@ class WsStates:
                 return False
             return True
         users = self.users[room]
+        if len(users) == 0:
+            return
         succeeds = await asyncio.wait([try_send(user) for user in users])
         self.users[room] = []
         for user, succeed in zip(users, succeeds):
