@@ -44,9 +44,15 @@ export default class App extends React.Component {
       ws.send(JSON.stringify({ room_id: this.state.rooms[this.state.idxCurrentRoom] }));
     });
 
-    ws.addEventListener('message', (event) =>{
+    ws.addEventListener('message', (event) => {
       this.fetchMessages();
     });
+
+    ws.addEventListener('close', () => {
+      console.log("Reconnect WS");
+      this.ws = undefined;
+      this.setupWs();
+    })
     this.ws = ws;
   }
 
