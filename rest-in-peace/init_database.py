@@ -52,5 +52,12 @@ create table if not exists chat.messages (
     user_name varchar,
     primary key ((room_id), id))
     with clustering order by (id desc);""")
+    session.execute("""
+create table if not exists chat.search_perf (
+    id bigint,
+    query_time int,
+    room_count int,
+    all_count int,
+    primary key (id));""")
 
 init_database()

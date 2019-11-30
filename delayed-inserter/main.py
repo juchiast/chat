@@ -6,6 +6,7 @@ from cassandra.query import BatchStatement
 import elasticsearch 
 import json
 import websockets
+import time
 
 import setting
 
@@ -53,14 +54,21 @@ async def handler(ws, path):
     async for message in ws:
         pass
 
+def rewrite_timestamp(time, now):
+    time = time % (1 << 31)
+    time = time | (int(now) << 31)
+    return time
+
 def insert_messages(messages):
     if len(messages) == 0:
         return None
     batch = BatchStatement()
     bulk = []
     rooms = set()
+    now = time.time()
     for m in messages:
         rooms.add(m['room_id'])
+        m['id'] = rewrite_timestamp(m['id'], now)
         batch.add(insert_message.bind((m['id'], m['content'], m['user_name'], m['room_id'])))
         doc = {"index": { "_index": setting.INDEX_NAME }}
         bulk.append(json.dumps(doc))

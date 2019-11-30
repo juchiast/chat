@@ -76,6 +76,23 @@ def send_message(room_id, user_name, message):
     re.publish('new_messages', json.dumps(msg))
 
 
+def count_all_msgs():
+    row = session.execute("select count(*) from messages")
+    return row[0][0]
+
+
+def count_msgs_in_room(room_id):
+    row = session.execute("select count(*) from messages where room_id=%s", (room_id, ))
+    return row[0][0]
+
+
+def insert_perf(query_time, room_id):
+    room_count = count_msgs_in_room(room_id)
+    all_count = count_all_msgs()
+    id = id_generator.next_id()
+    session.execute("insert into search_perf (id, query_time, room_count, all_count) values (%s, %s, %s, %s)", (id, query_time, room_count, all_count))
+
+
 def search(room_id, query):
     q = {
         '_source': ['id'],
@@ -91,7 +108,11 @@ def search(room_id, query):
             },
         },
     }
+
     resp = es.search(index=setting.INDEX_NAME, body=q)
+    query_time = resp['took']
+    insert_perf(query_time, room_id)
+
     ids = (x['_source']['id'] for x in resp['hits']['hits'])
     result = []
     for msg_id in ids:
