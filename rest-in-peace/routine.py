@@ -93,6 +93,25 @@ def insert_perf(query_time, room_id):
     session.execute("insert into search_perf (id, query_time, room_count, all_count) values (%s, %s, %s, %s)", (id, query_time, room_count, all_count))
 
 
+def get_all():
+    rows = session.execute("select room_id, id from messages")
+    yield "room_id,id\n"
+    for row in rows:
+        a = row[0]
+        b = row[1]
+        yield f"{a},{b}\n"
+
+
+def get_search_perf():
+    rows = session.execute("select query_time, room_count, all_count from search_perf")
+    yield "query_time,room_count,all_count\n"
+    for row in rows:
+        a = row[0]
+        b = row[1]
+        c = row[2]
+        yield f"{a},{b},{c}\n"
+
+
 def search(room_id, query):
     q = {
         '_source': ['id'],
