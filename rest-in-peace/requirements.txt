@@ -1,0 +1,6 @@
+Flask==1.1.1
+Flask-Cors==3.0.8
+cassandra-driver==3.18.0
+elasticsearch==7.1.0
+redis==3.3.11
+gunicorn==20.0.0

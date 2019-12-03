@@ -1,5 +1,6 @@
 import React from "react";
 import Messages from "./message-list";
+import { getApiUrl } from "./util";
 
 import "./App.css";
 
@@ -22,7 +23,7 @@ export default class SearchWindow extends React.Component {
     const query = {
       query: this.state.query_text
     };
-    const url = `http://localhost:8080/${this.props.room}/search/`;
+    const url = `${getApiUrl()}/${this.props.room}/search/`;
     let resp = await fetch(url, {
       method: "POST",
       headers: {

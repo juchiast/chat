@@ -6,9 +6,8 @@ import redis
 
 import setting
 
-
 def get_worker_id():
-    r = redis.Redis()
+    r = redis.Redis(setting.REDIS_HOST)
     return r.incr('worker_count') % (1 << 10)
 
 
@@ -29,10 +28,11 @@ class IdGenerator:
         return (timestamp << 31) | (self.worker_id << 21) | (self.count % (1 << 21))
 
 
-cluster = cassandra.cluster.Cluster()
+cluster = cassandra.cluster.Cluster(setting.CASSANDRA_HOSTS)
 session = cluster.connect(setting.KEYSPACE_NAME)
 id_generator = IdGenerator()
-es = elasticsearch.Elasticsearch()
+es = elasticsearch.Elasticsearch(setting.ES_HOSTS)
+re = redis.Redis(setting.REDIS_HOST)
 
 
 def load_messages(room_id, limit, before):
@@ -67,20 +67,49 @@ def load_messages(room_id, limit, before):
 
 
 def send_message(room_id, user_name, message):
-    msg_id = id_generator.next_id()
-    session.execute(
-        "insert into messages (id, content, user_name, room_id) "
-        "values (%s, %s, %s, %s) ",
-        (msg_id, message, user_name, room_id)
-    )
     msg = {
-        'id': msg_id,
+        'id': id_generator.next_id(),
         'content': message,
         'room_id': room_id,
         'user_name': user_name,
     }
-    resp = es.index(index=setting.INDEX_NAME, body=msg)
-    assert(resp['result'] == 'created')
+    re.publish('new_messages', json.dumps(msg))
+
+
+def count_all_msgs():
+    row = session.execute("select count(*) from messages")
+    return row[0][0]
+
+
+def count_msgs_in_room(room_id):
+    row = session.execute("select count(*) from messages where room_id=%s", (room_id, ))
+    return row[0][0]
+
+
+def insert_perf(query_time, room_id):
+    room_count = count_msgs_in_room(room_id)
+    all_count = count_all_msgs()
+    id = id_generator.next_id()
+    session.execute("insert into search_perf (id, query_time, room_count, all_count) values (%s, %s, %s, %s)", (id, query_time, room_count, all_count))
+
+
+def get_all():
+    rows = session.execute("select room_id, id from messages")
+    yield "room_id,id\n"
+    for row in rows:
+        a = row[0]
+        b = row[1]
+        yield f"{a},{b}\n"
+
+
+def get_search_perf():
+    rows = session.execute("select query_time, room_count, all_count from search_perf")
+    yield "query_time,room_count,all_count\n"
+    for row in rows:
+        a = row[0]
+        b = row[1]
+        c = row[2]
+        yield f"{a},{b},{c}\n"
 
 
 def search(room_id, query):
@@ -98,7 +127,11 @@ def search(room_id, query):
             },
         },
     }
+
     resp = es.search(index=setting.INDEX_NAME, body=q)
+    query_time = resp['took']
+    insert_perf(query_time, room_id)
+
     ids = (x['_source']['id'] for x in resp['hits']['hits'])
     result = []
     for msg_id in ids:

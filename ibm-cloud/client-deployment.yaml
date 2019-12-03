@@ -1,0 +1,17 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: chat-client
+spec:
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: chat-client
+    spec:
+      containers: 
+      - name: chat-client
+        image: juchiast/chat-client:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80

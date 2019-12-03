@@ -1,6 +1,7 @@
 import React from "react";
 import ChatWindow from "./chat-window";
 import SearchWindow from "./search-window";
+import { getApiUrl, getWsUrl } from "./util";
 
 function RoomList(props) {
   const rooms = props.rooms;
@@ -30,12 +31,34 @@ export default class App extends React.Component {
       idxCurrentRoom: 0,
       openSearchBox: false
     };
+    this.setupWs();
     this.fetchMessages();
+  }
+
+  setupWs() {
+    if (this.ws !== undefined) {
+      this.ws.close();
+    }
+    const ws = new WebSocket(getWsUrl());
+    ws.addEventListener('open', () => {
+      ws.send(JSON.stringify({ room_id: this.state.rooms[this.state.idxCurrentRoom] }));
+    });
+
+    ws.addEventListener('message', (event) => {
+      this.fetchMessages();
+    });
+
+    ws.addEventListener('close', () => {
+      console.log("Reconnect WS");
+      this.ws = undefined;
+      this.setupWs();
+    })
+    this.ws = ws;
   }
 
   async fetchMessages() {
     let roomId = this.state.rooms[this.state.idxCurrentRoom];
-    let resp = await fetch(`http://localhost:8080/${roomId}/?limit=10`);
+    let resp = await fetch(`${getApiUrl()}/${roomId}/?limit=10`);
     resp = await resp.json();
     let messages = resp.messages;
     this.setState({ messages });
@@ -45,9 +68,10 @@ export default class App extends React.Component {
     return [1, 2, 3, 4, 5, 6]; // update from API
   }
 
-  myChangeHandler(event) {
+  onRoomChanged(event) {
     this.setState({ idxCurrentRoom: event.target.value }, () => {
       this.fetchMessages();
+      this.setupWs();
     });
   }
 
@@ -68,14 +92,14 @@ export default class App extends React.Component {
     };
     inputElement.value = "";
     const roomId = this.state.rooms[this.state.idxCurrentRoom];
-    const url = `http://localhost:8080/${roomId}/`;
+    const url = `${getApiUrl()}/${roomId}/`;
     fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(msg)
-    }).then(() => this.fetchMessages());
+    });
   }
 
   userChangeHandler(event) {
@@ -100,7 +124,7 @@ export default class App extends React.Component {
               <label> Choose Room: </label>
               <RoomList
                 rooms={this.state.rooms}
-                onChange={event => this.myChangeHandler(event)}
+                onChange={event => this.onRoomChanged(event)}
               />
             </form>
           </div>

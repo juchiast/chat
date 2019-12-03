@@ -1,0 +1,6 @@
+volumeClaimTemplate:
+  accessModes: [ "ReadWriteOnce" ]
+  storageClassName: "ibmc-block-silver"
+  resources:
+    requests:
+      storage: 20Gi
