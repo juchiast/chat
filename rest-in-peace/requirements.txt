@@ -1,5 +1,5 @@
 Flask==1.1.1
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 cassandra-driver==3.18.0
 elasticsearch==7.1.0
 redis==3.3.11
