@@ -16,7 +16,7 @@ def success_response(response_data):
     return jsonify(response_data), 200
 
 
-def catch_panic():
+def wrap_response():
     def _decorator(func):
         @wraps(func)
         def __decorator(*args, **kwargs):

@@ -1,0 +1,1 @@
+export KUBECONFIG=/home/qwe/.bluemix/plugins/container-service/clusters/bneueg2d09snm5clbc10/kube-config-dal10-mycluster.yml

@@ -7,7 +7,7 @@ import requests
 
 texts = make_subtitles.get_all_texts()
 
-host = "http://localhost:8080/"
+host = "http://localhost:8080/api"
 rooms = [1, 2, 3, 4, 5, 6]
 users = ['lisa', 'kenny', 'voldy']
 count = 0

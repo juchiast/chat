@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Example client</title>
+</head>
+<script>
+    function get_input(id) {
+        return document.getElementById(id).value.trim();
+    }
+
+    function clear_output() {
+        let e = document.getElementById('result');
+        e.innerHTML = '';
+    }
+
+    function display_error(error_message) {
+        let e = document.getElementById('result');
+        e.innerHTML = '';
+        e.textContent = error_message;
+    }
+
+    function display_messages(msgs) {
+        msgs.forEach(msg => {
+            msg.timestamp = (new Date(msg.timestamp * 1000)).toString();
+        });
+        let e = document.getElementById('result');
+        e.innerHTML = '';
+        if (msgs.length === 0) {
+            e.textContent = "No messages";
+            return;
+        }
+        let fields = Object.keys(msgs[0]);
+        e.innerHTML = `<table>
+        <tr>${fields.map(f => `<th>${f}</th>`).join()}</tr>
+        ${msgs.map(msg => `<tr>${fields.map(f => `<td>${msg[f]}</td>`).join()}</tr>`).join()}
+        </table>`;
+    }
+
+    async function load() {
+        clear_output();
+        let room = get_input('room_id');
+        let limit = get_input('load_limit');
+        let before = get_input('load_before');
+        let url = `/api/${room}/?limit=${limit}${before === '' ? '' : `&before=${before}`}`;
+        let resp = await (await fetch(url)).json();
+        if (resp.error_code === 1) {
+            display_error(resp.error_message);
+        } else {
+            display_messages(resp.messages);
+        }
+    }
+
+    async function search() {
+        clear_output();
+        let room = get_input('room_id');
+        let query = get_input('search_query');
+        let url = `/api/${room}/search/`;
+        let resp = await (await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query }),
+        })).json();
+        if (resp.error_code === 1) {
+            display_error(resp.error_message);
+        } else {
+            display_messages(resp.messages);
+        }
+    }
+
+    async function send() {
+        clear_output();
+        let room = get_input('room_id');
+        let user_name = get_input('send_user_name');
+        let message = get_input('send_content');
+        let url = `/api/${room}/`;
+        let resp = await (await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_name, message }),
+        })).json();
+        if (resp.error_code === 1) {
+            display_error(resp.error_message);
+        } else {
+            let e = document.getElementById('result');
+            e.innerHTML = 'Succeed!';
+        }
+    }
+</script>
+
+<body>
+    Room: <input type="text" id="room_id">
+    <hr>
+    <input type="text" id="search_query" placeholder="Query">
+    <button onclick="search()">Search</button>
+    <hr>
+    <input type="text" id="load_limit" placeholder="Limit">
+    <input type="text" id="load_before" placeholder="Before">
+    <button onclick="load()">Load messages</button>
+    <hr>
+    <input type="text" id="send_user_name" placeholder="User name">
+    <input type="text" id="send_content" placeholder="Content">
+    <button onclick="send()">Send message</button>
+    <hr>
+    <div id="result"></div>
+</body>
+
+</html>

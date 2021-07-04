@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuxo pipefail
 stop() {
-    docker container stop ES || true
-    docker container stop CASSANDRA || true
+    docker container stop ES CASSANDRA REDIS || true
     docker network rm chatnet || true
 }
 trap stop SIGINT SIGQUIT
@@ -26,14 +25,22 @@ docker run --rm -d --name CASSANDRA --net chatnet \
     -v CASSANDRA-VOLUME:/var/lib/cassandra \
     -p 9042:9042 \
     cassandra:3.11.5
+docker run --rm -d --name REDIS --net chatnet \
+    -p 6379:6379 \
+    redis:5
 
+sleep 20
 until docker exec CASSANDRA cqlsh -e 'use system;'
 do
     sleep 5;
 done
-docker run --rm --net chatnet -v ${PWD}/schema.sql:/schema.sql:ro cassandra:3.11.5 cqlsh -f /schema.sql CASSANDRA
 
-until curl -X GET "localhost:9200/_cluster/health?wait_for_status=green&timeout=50s&pretty";
+until curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&pretty";
+do
+    sleep 5;
+done
+
+until docker exec REDIS redis-cli ping;
 do
     sleep 5;
 done
